@@ -1,0 +1,524 @@
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen&display=swap");
+
+:root {
+    /* Existing game variables */
+    --buttonHeight: 10px;
+    --buttonSize: 100px;
+    --black: #111;
+    --white: #eee;
+    --blackHighlight: #333;
+    --whiteHighlight: #fff;
+
+    /* Updated dark theme colors */
+    --primary: #ff4655;
+    --primary-dark: #cc2936;
+    --danger: #ff6b6b;
+    --dark: #0f1923;
+    --text: #8b949e;
+    --background: #010409;
+    --card: #161b22;
+    --border: #30363d;
+}
+
+body {
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text);
+
+    overflow: hidden;
+}
+
+/*#region Header and Footer */
+
+header {
+    background: var(--dark);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+    h1 {
+        margin: 0;
+        font-family: "Silkscreen", serif;
+        font-size: 3.5rem;
+        color: var(--white);
+        text-shadow: 0 0 10px rgba(255, 70, 85, 0.3), 2px 2px 0px #000;
+        letter-spacing: 2px;
+        text-align: center;
+    }
+}
+
+footer {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 1.5rem;
+    text-align: center;
+    color: var(--text);
+    font-size: 0.875rem;
+}
+
+/*#endregion */
+
+/*#region Main Content */
+
+main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 2rem;
+    gap: 2rem;
+    user-select: none;
+}
+
+.gameplay-area {
+    position: relative;
+    display: flex;
+    justify-content: center;
+}
+
+#board {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    gap: 5px;
+    padding: 10px;
+    background: var(--dark);
+    border-radius: 10px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.row {
+    display: flex;
+    gap: 5px;
+
+    .cell {
+        width: var(--buttonSize);
+        height: var(--buttonSize);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        border: none;
+
+        /* disabled cursor */
+        cursor: not-allowed;
+
+        opacity: 0.5;
+        filter: brightness(0.3);
+
+
+        &[active] {
+            cursor: pointer;
+        
+            transform: translateY(calc(var(--buttonHeight) * -1));
+            box-shadow: 0 var(--buttonHeight) 0 0 var(--blackHighlight);
+        
+            opacity: 1;
+            filter: brightness(1);
+        
+            transition: transform 0.1s, box-shadow 0.1s;
+        
+            &:hover {
+                &::before {
+                    opacity: 0.25;
+                }
+            }
+        
+            &:active {
+                transform: translateY(0);
+                box-shadow: 0 0 0 0 var(--blackHighlight);
+            }
+        
+            position: relative;
+        }
+
+
+        &.merciless {
+            background-color: #f00 !important;
+            color: #fff;
+
+            box-shadow: 0 var(--buttonHeight) 0 0 #640303;
+        
+            &::after {
+                content: "💀";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 4em;
+                pointer-events: none;
+                line-height: 0;
+            }
+        }
+    }
+
+    &:nth-child(odd) .cell:nth-child(odd) {
+        background-color: var(--black);
+    }
+    &:nth-child(odd) .cell:nth-child(even) {
+        background-color: var(--white);
+    }
+    &:nth-child(even) .cell:nth-child(odd) {
+        background-color: var(--white);
+    }
+    &:nth-child(even) .cell:nth-child(even) {
+        background-color: var(--black);
+    }
+}
+
+/*#endregion */
+
+/*#region Lives */
+
+#lives {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    max-width: 600px;
+    width: 100%;
+    margin-bottom: 1rem;
+
+    .life {
+        background: var(--card);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        position: relative;
+        border: 1px solid var(--border);
+        font-weight: 500;
+        transition: all 0.2s;
+        color: var(--white);
+    }
+
+    .dead {
+        background: #290000;
+        color: var(--danger);
+        border-color: #3d0000;
+
+        overflow: hidden;
+
+        &::after {
+            content: "💀";
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4em;
+            opacity: 0.8;
+            pointer-events: none;
+            line-height: 0;
+        }
+    }
+}
+
+/*#endregion */
+
+/*#region Leaderboard */
+
+#leaderboard {
+    --handleWidth: 1.5rem;
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background: var(--card);
+    padding: 1em;
+    padding-left: calc(var(--handleWidth) + 1em);
+    border: none;
+    border-left: 1px solid var(--border);
+    transform: translateX(calc(100% - var(--handleWidth)));
+    min-width: 300px;
+    transition: transform 0.3s ease-in-out, padding 0.3s ease-in-out;
+    z-index: 1000;
+
+    &:hover {
+        transform: translateX(0);
+        padding-left: 1em;
+    }
+
+    canvas {
+        width: 100%;
+        height: 200px;
+        background: var(--dark);
+
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
+    }
+
+    h2 {
+        color: var(--white);
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+
+    .leaderboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+
+        h2 {
+            margin: 0;
+        }
+
+        .footer-button {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+        }
+    }
+}
+
+/*#endregion */
+
+/*#region Modal */
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal {
+    background: var(--card);
+    padding: 2em;
+    border-radius: 1rem;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    border: 1px solid var(--border);
+    animation: slideIn 0.3s ease;
+    color: var(--white);
+    position: relative;
+
+    h2 {
+        color: var(--primary);
+        margin-top: 0;
+    }
+
+    p {
+        color: var(--text);
+        line-height: 1.5;
+    }
+
+    .modal-button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-top: 1em;
+
+        user-select: none;
+
+        &:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    line-height: 0.5;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+
+    &:hover {
+        color: var(--white);
+        background: var(--primary-dark);
+    }
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.rules-content {
+    text-align: left;
+    margin: 1.5em 0;
+}
+
+.rules-content .inspiration {
+    font-style: italic;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 1.5em;
+}
+
+.rules-content ul {
+    margin: 0;
+    padding-left: 1.5em;
+    list-style-type: none;
+}
+
+.rules-content li {
+    margin-bottom: 0.75em;
+    position: relative;
+}
+
+.rules-content li::before {
+    content: "•";
+    color: var(--primary);
+    position: absolute;
+    left: -1em;
+}
+
+/*#endregion */
+
+/*#region Animations */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#timer {
+    position: absolute;
+    left: -140px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: none;
+    font-family: "Silkscreen", monospace;
+    font-size: 4rem;
+    color: var(--white);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    transition: color 0.3s, transform 0.3s;
+    min-width: 120px;
+    text-align: center;
+}
+
+#timer.danger {
+    color: var(--danger);
+    text-shadow: 0 0 10px rgba(255, 70, 85, 0.3);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/*#endregion */
+
+/*#region Start Screen */
+
+#start-container {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s, visibility 0.3s;
+
+    &.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+#start-button {
+    font-size: 1.5rem;
+    padding: 1.5rem 3rem;
+    background: var(--primary);
+    border: none;
+    border-radius: 0.5rem;
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    font-family: "Silkscreen", monospace;
+    transform-origin: center;
+
+    &:hover {
+        transform: scale(1.1);
+        background: var(--primary-dark);
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+/*#endregion */
+
+/*#region General Styles */
+
+.secondary-button {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+
+    user-select: none;
+
+    &:hover {
+        background: var(--card);
+        color: var(--white);
+        border-color: var(--primary);
+    }
+}

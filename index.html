@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Death Checkers</title>
+        
+        <!-- Preload font -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        
+        <!-- import styles -->
+        <link rel="stylesheet" href="css/style.css" />
+
+        <!-- import scripts -->
+        <script src="js/people.js" defer></script>
+        <script src="js/script.js" defer></script>
+    </head>
+    <body>
+        <header>
+            <h1>DEATH CHECKERS</h1>
+        </header>
+        <main>
+            <div id="lives"></div>
+            <div class="gameplay-area">
+                <div id="start-container">
+                    <button id="start-button" class="modal-button" type="button">Start Game</button>
+                </div>
+                <div id="timer">30</div>
+                <div id="board"></div>
+            </div>
+        </main>
+        <!-- Replace leaderboard content -->
+        <div id="leaderboard">
+            <div class="leaderboard-header">
+                <h2>Survival History</h2>
+                <button class="secondary-button" onclick="clearHistory()">Clear History</button>
+            </div>
+            <canvas id="graph"></canvas>
+        </div>
+
+        <!-- Add rules modal markup before the existing modal -->
+        <div class="modal-overlay" id="rules-modal">
+            <div class="modal">
+                <h2>Rules</h2>
+                <div class="rules-content">
+                    <p class="inspiration">Based on Battle Angel Alita: Last Order - Chapter 121</p>
+                    <ul>
+                        <li>The board is a 5x5 grid full of Rescue and Death buttons</li>
+                        <li>You start with 8 lives, including yourself</li>
+                        <li>You start with 16 buttons, half Rescue and half Death</li>
+                        <li>Press a button within 30 seconds or a random life is lost</li>
+                        <li>Each button press removes a button from the board of the same type</li>
+                        <li>After round 4, a Merciless button appears (💀)</li>
+                        <li>The Merciless button kills a random non-player</li>
+                        <li>If you die, everyone dies</li>
+                        <li>Survive 8 rounds to win</li>
+                    </ul>
+
+                    <p>
+                        How many people can you save?
+                    </p>
+                    <p>
+                        Will you sacrifice others to guarantee the survival of those you've already saved?
+                    </p>
+                </div>
+                <button class="modal-button" onclick="document.getElementById('rules-modal').style.display='none'">Got it!</button>
+            </div>
+        </div>
+
+        <!-- Add modal markup -->
+        <div class="modal-overlay" id="modal">
+            <div class="modal">
+                <button class="modal-close" onclick="hideModal()">&times;</button>
+                <h2 id="modal-title"></h2>
+                <p id="modal-message"></p>
+                <div class="modal-buttons" id="modal-buttons"></div>
+            </div>
+        </div>
+
+        <footer>
+            <button class="secondary-button" onclick="showRules()">Show Rules</button>
+        </footer>
+    </body>
+</html>
