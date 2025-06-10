@@ -1,4 +1,3 @@
-
 // RULES:
 // - The board is a 5x5 grid of cells
 // - Start with N lives
@@ -29,6 +28,8 @@ let activeCell = null;
 // Change initial counts to be N each instead of N/2
 let rescueCount = startingLives;
 let deathCount = startingLives;
+
+var gameActive = false; // Track if the game is active
 
 function getRandomNames(count) {
     count = count - 1; // subtract 1 for the player
@@ -255,14 +256,24 @@ function clearHistory() {
 let timerInterval;
 let timeLeft = 30;
 
-function startTimer() {
+function startTimer(initialStart = false) {
     // Add event handler cleanup
     clearInterval(timerInterval);
     timeLeft = 30;
     updateTimerDisplay();
 
+    // if initialStart is true, set gameActive to true
+    if (initialStart) {
+        gameActive = true;
+    }
+
+    // if gameActive is false, stop the timer
+    if (!gameActive) {
+        return;
+    }
+
     // Remove the container instead of just hiding it
-    if (round === 0) {
+    if (round === 0 && document.getElementById('start-container')) {
         const startContainer = document.getElementById('start-container');
         startContainer.remove();
     }
@@ -276,11 +287,23 @@ function startTimer() {
             clearInterval(timerInterval);
             killRandomLife();
             if (lives.find(life => life.name === "Player").alive) {
-                showStartButton();
+                // showStartButton();
                 generateBoard();
+                // Restart the timer for the next round
+                startTimer();
             }
         }
     }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+    timeLeft = 30; // Reset time left
+    updateTimerDisplay();
+    document.getElementById('timer').style.display = 'none';
+    document.title = "Death Checkers"; // Reset the document title
+
+    gameActive = false; // Stop the game
 }
 
 function showStartButton() {
@@ -343,9 +366,7 @@ function handleCellClick(event) {
             deathCount--;
             killRandomNonPlayerLife();
             break;
-    }
-
-    round++;
+    }    round++;
 
     // Check for game completion
     if (round >= startingLives) {
@@ -357,7 +378,7 @@ function handleCellClick(event) {
         if (playerAlive) {
             gameWon = true; // Set victory state
             finalSurvivors = survivors; // Store the final count
-            clearInterval(timerInterval); // Stop the timer
+            stopTimer(); // Stop the timer and reset display
             document.title = "Death Checkers - Victory!";
             showVictoryScreen();
         } else {
@@ -367,8 +388,8 @@ function handleCellClick(event) {
         generateBoard();
     }
 
-    // After handling the cell click, show start button instead of auto-starting timer
-    showStartButton();
+    // Always start the timer after a button press
+    startTimer();
 }
 
 function showVictoryScreen() {
@@ -406,6 +427,10 @@ function killRandomLife() {
         generateLives(); // Regenerate lives display immediately
 
         if (randomLife.name === "Player") {
+            // Stop the timer immediately when player dies
+            clearInterval(timerInterval);
+            stopTimer();
+            
             // Kill everyone else when player dies
             lives.forEach((life) => (life.alive = false));
             generateLives(); // Show all dead before modal
@@ -420,7 +445,11 @@ function killRandomLife() {
                         saveToLeaderboard(0);
                         resetGame();
                     }
-                }]
+                }],
+                () => {
+                    // Reset the game state after modal is closed
+                    resetGame();
+                }
             );
         }
     }
@@ -456,7 +485,7 @@ function resetGame() {
 }
 
 // Add modal functions
-function showModal(title, message, buttons = [{ text: 'Continue', action: hideModal }]) {
+function showModal(title, message, buttons = [{ text: 'Continue', action: hideModal }], onClose = null) {
     const modal = document.getElementById("modal");
     const modalTitle = document.getElementById("modal-title");
     const modalMessage = document.getElementById("modal-message");
@@ -465,6 +494,13 @@ function showModal(title, message, buttons = [{ text: 'Continue', action: hideMo
     modalTitle.textContent = title;
     modalMessage.textContent = message;
     modalButtons.innerHTML = '';
+
+    // assign the close button action to .modal-close
+    const closeButton = document.querySelector('.modal-close');
+    closeButton.onclick = () => {
+        hideModal();
+        if (onClose) onClose();
+    }
 
     buttons.forEach(btn => {
         const button = document.createElement('button');
@@ -492,8 +528,9 @@ function showRules() {
 // Initialize game
 const startButton = document.getElementById('start-button');
 startButton.addEventListener('click', () => {
-    startTimer();
+    startTimer(true); // Start the timer immediately
 });
+
 updateLeaderboardDisplay();
 generateBoard();
 

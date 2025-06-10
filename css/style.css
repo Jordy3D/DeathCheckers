@@ -20,6 +20,16 @@
     --border: #30363d;
 }
 
+/* scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
 body {
     font-family: "Inter", system-ui, -apple-system, sans-serif;
     margin: 0;
@@ -30,7 +40,7 @@ body {
     background: var(--background);
     color: var(--text);
 
-    overflow: hidden;
+    /* overflow: hidden; */
 }
 
 /*#region Header and Footer */
@@ -71,9 +81,35 @@ main {
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding: 2rem;
+    padding: 1rem;
     gap: 2rem;
     user-select: none;
+}
+
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    gap: 2rem;
+    user-select: none;
+
+    #lives {
+        order: 2; /* lives last */
+
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-items: center;
+        max-width: 100%;
+        width: fit-content;
+
+        .life {
+            width: 100px;
+        }
+    }
 }
 
 .gameplay-area {
@@ -108,41 +144,39 @@ main {
         cursor: not-allowed;
 
         opacity: 0.5;
-        filter: brightness(0.3);
-
+        filter: brightness(0.3) contrast(0.5);
 
         &[active] {
             cursor: pointer;
-        
+
             transform: translateY(calc(var(--buttonHeight) * -1));
             box-shadow: 0 var(--buttonHeight) 0 0 var(--blackHighlight);
-        
+
             opacity: 1;
             filter: brightness(1);
-        
+
             transition: transform 0.1s, box-shadow 0.1s;
-        
+
             &:hover {
                 &::before {
                     opacity: 0.25;
                 }
             }
-        
+
             &:active {
                 transform: translateY(0);
                 box-shadow: 0 0 0 0 var(--blackHighlight);
             }
-        
+
             position: relative;
         }
-
 
         &.merciless {
             background-color: #f00 !important;
             color: #fff;
 
             box-shadow: 0 var(--buttonHeight) 0 0 #640303;
-        
+
             &::after {
                 content: "💀";
                 position: absolute;
@@ -218,9 +252,9 @@ main {
 
 /*#endregion */
 
-/*#region Leaderboard */
+/*#region Sidebar and Leaderboard */
 
-#leaderboard {
+#sidebar {
     --handleWidth: 1.5rem;
     position: fixed;
     right: 0;
@@ -235,25 +269,31 @@ main {
     min-width: 300px;
     transition: transform 0.3s ease-in-out, padding 0.3s ease-in-out;
     z-index: 1000;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 
     &:hover {
         transform: translateX(0);
         padding-left: 1em;
     }
 
-    canvas {
-        width: 100%;
-        height: 200px;
-        background: var(--dark);
-
-        border-radius: 0.5rem;
-        border: 1px solid var(--border);
-    }
-
     h2 {
         color: var(--white);
         font-size: 1.25rem;
         margin-bottom: 1rem;
+        margin-top: 0;
+    }
+}
+
+#leaderboard {
+    canvas {
+        width: 100%;
+        height: 200px;
+        background: var(--dark);
+        border-radius: 0.5rem;
+        border: 1px solid var(--border);
     }
 
     .leaderboard-header {
@@ -269,6 +309,29 @@ main {
         .footer-button {
             font-size: 0.75rem;
             padding: 0.25rem 0.75rem;
+        }
+    }
+}
+
+#sidebar-rules {
+    ul {
+        list-style-type: none;
+        padding-left: 0.5rem;
+        margin: 0;
+    }
+
+    li {
+        margin-bottom: 0.75rem;
+        position: relative;
+        padding-left: 1.25rem;
+        color: var(--text);
+        font-size: 0.9rem;
+
+        &:before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: 0;
         }
     }
 }
@@ -305,6 +368,9 @@ main {
     animation: slideIn 0.3s ease;
     color: var(--white);
     position: relative;
+
+    max-height: 80vh;
+    overflow-y: auto;
 
     h2 {
         color: var(--primary);
@@ -366,31 +432,31 @@ main {
 .rules-content {
     text-align: left;
     margin: 1.5em 0;
-}
 
-.rules-content .inspiration {
-    font-style: italic;
-    color: var(--primary);
-    text-align: center;
-    margin-bottom: 1.5em;
-}
+    .inspiration {
+        font-style: italic;
+        color: var(--primary);
+        text-align: center;
+        margin-bottom: 1.5em;
+    }
 
-.rules-content ul {
-    margin: 0;
-    padding-left: 1.5em;
-    list-style-type: none;
-}
+    ul {
+        margin: 0;
+        padding-left: 1.5em;
+        list-style-type: none;
+    }
 
-.rules-content li {
-    margin-bottom: 0.75em;
-    position: relative;
-}
+    li {
+        margin-bottom: 0.75em;
+        position: relative;
 
-.rules-content li::before {
-    content: "•";
-    color: var(--primary);
-    position: absolute;
-    left: -1em;
+        &::before {
+            content: "•";
+            color: var(--primary);
+            position: absolute;
+            left: -1em;
+        }
+    }
 }
 
 /*#endregion */
@@ -430,12 +496,12 @@ main {
     transition: color 0.3s, transform 0.3s;
     min-width: 120px;
     text-align: center;
-}
 
-#timer.danger {
-    color: var(--danger);
-    text-shadow: 0 0 10px rgba(255, 70, 85, 0.3);
-    animation: pulse 1s infinite;
+    &.danger {
+        color: var(--danger);
+        text-shadow: 0 0 10px rgba(255, 70, 85, 0.3);
+        animation: pulse 1s infinite;
+    }
 }
 
 @keyframes pulse {
@@ -520,5 +586,63 @@ main {
         background: var(--card);
         color: var(--white);
         border-color: var(--primary);
+    }
+}
+
+/* if the screen is too small, put the lives to the right of the gameplay area */
+@media (max-width: 768px) {
+    :root {
+        --buttonSize: 50px; /* smaller buttons on mobile */
+        --buttonHeight: 8px; /* smaller button height on mobile */
+    }
+
+    header {
+        h1 {
+            font-size: 1.5rem; /* smaller title on mobile */
+        }
+    }
+
+    main {
+        flex-direction: column;
+        align-items: center;
+
+        #lives {
+            order: unset;
+
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 0rem;
+            align-items: center;
+
+            .life {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+
+        .gameplay-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+
+            #timer {
+                position: fixed;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                top: 6.5rem;
+                display: block;
+                z-index: 1000;
+                font-size: 2rem;
+
+                &.danger {
+                    top: 5rem; /* adjust position for smaller font size */
+                }
+            }
+        }
     }
 }
